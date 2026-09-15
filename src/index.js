@@ -1,4 +1,4 @@
-// ---------- Helper ----------
+
 const tg = (token, method) => `https://api.telegram.org/bot${token}/${method}`;
 
 function escapeHtml(t = '') {
@@ -20,7 +20,6 @@ async function sendMessage(env, chatId, text) {
   }).then(r => r.json());
 }
 
-// نام کاربری ربات را یک‌بار می‌گیریم و در KV کش می‌کنیم
 async function getBotUsername(env) {
   let u = await env.CACHE.get('bot_username');
   if (u) return u;
@@ -30,7 +29,6 @@ async function getBotUsername(env) {
   return u;
 }
 
-// ثبت کاربر جدید با کد ناشناس یکتا
 async function ensureUser(msg, env) {
   const existing = await env.DB.prepare('SELECT * FROM users WHERE telegram_id = ?')
     .bind(msg.from.id).first();
@@ -48,7 +46,7 @@ async function ensureUser(msg, env) {
   throw new Error('create user failed');
 }
 
-// ---------- Command Handlers ----------
+
 
 async function handleStart(msg, env) {
   const user = await ensureUser(msg, env);
@@ -56,7 +54,7 @@ async function handleStart(msg, env) {
   const targetCode = msg.text.split(' ')[1]; // مثلا /start AB12CD34
   const username = await getBotUsername(env);
 
-  // اگر از طریق لینک اختصاصی آمده → شروع گفتگوی ناشناس
+  
   if (targetCode) {
     const target = await env.DB.prepare('SELECT * FROM users WHERE anon_code = ?')
       .bind(targetCode.toUpperCase()).first();
@@ -70,7 +68,6 @@ async function handleStart(msg, env) {
       '🎭 حالا در حال گفتگوی ناشناس هستی.\nهر متنی بنویسی ناشناس برایش ارسال می‌شود.\n\nبرای پایان: /stop');
   }
 
-  // شروع عادی → نمایش لینک اختصاصی
   const link = `https://t.me/${username}?start=${user.anon_code}`;
   await sendMessage(env, chatId,
     `🎭 <b>به ربات پیام ناشناس خوش آمدی!</b>\n\n` +
@@ -86,7 +83,6 @@ async function handleMyLink(msg, env) {
     `🔗 لینک اختصاصی تو:\nhttps://t.me/${username}?start=${user.anon_code}`);
 }
 
-// ارسال پیام ناشناس
 async function handleUserMessage(msg, env) {
   const chatId = msg.chat.id;
   const session = await env.CACHE.get(`session:${chatId}`);
@@ -109,7 +105,6 @@ async function handleUserMessage(msg, env) {
   }
 }
 
-// ---------- Router ----------
 async function handleUpdate(update, env) {
   const msg = update.message;
   if (!msg || msg.chat.type !== 'private') return;
@@ -129,14 +124,12 @@ async function handleUpdate(update, env) {
   if (text) return handleUserMessage(msg, env);
 }
 
-// ---------- Entry Point ----------
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
     if (request.method === 'GET') return new Response('🤖 Bot is alive!');
 
-    // فقط درخواست‌های webhook با مسیر مخفی پذیرفته می‌شوند
     if (request.method === 'POST' && url.pathname === `/webhook/${env.WEBHOOK_SECRET}`) {
       const update = await request.json();
       try { await handleUpdate(update, env); } catch (e) { console.error(e); }
