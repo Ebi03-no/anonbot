@@ -1,0 +1,11 @@
+name = "anonbot"
+main = "src/index.js"
+compatibility_date = "2024-09-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "anonbot-db"
+database_id = "58de5fa5-7d23-445e-b623-e2cc6f0724b2"  
+[[kv_namespaces]]
+binding = "CACHE"
+id = "40202b7669d84ffba23f089b20d50168"
