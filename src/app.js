@@ -1,4 +1,3 @@
-// رابط مینی‌اپ تلگرام — صندوق پیام‌های ناشناس
 export default `<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
